@@ -270,26 +270,24 @@ class QueueViewModel {
         if pointer >= items.count {
             // Delay completion slightly to ensure the target app has time
             // to process the Cmd+V keystroke before our UI state changes.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.complete()
             }
         } else {
             persistSessionIfNeeded()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                self.prepareClipboardForCurrentItem()
+            // Wait 300ms before preloading the next item. 50ms was too fast, causing
+            // the target app to read the *next* item if it woke up slowly to process Cmd+V.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                if self.state == .active {
+                    self.prepareClipboardForCurrentItem()
+                }
             }
         }
     }
 
     func pasteNext() {
         guard state == .active, items.indices.contains(pointer) else { return }
-        pointer += 1
-        if pointer >= items.count {
-            complete()
-        } else {
-            persistSessionIfNeeded()
-            prepareClipboardForCurrentItem()
-        }
+        performPasteAdvance()
     }
 
     func skip() {
@@ -407,7 +405,11 @@ class QueueViewModel {
             store.delete()
             return
         }
-        store.save(makeSnapshot())
+        do {
+            try store.save(makeSnapshot())
+        } catch {
+            errorMessage = "Failed to save session: \(error.localizedDescription)"
+        }
     }
 
     // MARK: - Hotkey labels
