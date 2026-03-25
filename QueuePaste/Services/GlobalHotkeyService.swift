@@ -1,5 +1,6 @@
 import Cocoa
 
+@MainActor
 class GlobalHotkeyService {
     static let shared = GlobalHotkeyService()
     
@@ -33,15 +34,15 @@ class GlobalHotkeyService {
                 if isOptionDown && !isControlDown && !isShiftDown {
                     if keyCode == 49 && !isCommandDown {
                         // Option + Space
-                        DispatchQueue.main.async { GlobalHotkeyService.shared.onHotKeyTriggered?() }
+                        Task { @MainActor in GlobalHotkeyService.shared.onHotKeyTriggered?() }
                         return nil
                     } else if keyCode == 35 && isCommandDown {
                         // Option + Cmd + P
-                        DispatchQueue.main.async { GlobalHotkeyService.shared.onPauseResumeTriggered?() }
+                        Task { @MainActor in GlobalHotkeyService.shared.onPauseResumeTriggered?() }
                         return nil
                     } else if keyCode == 4 && isCommandDown {
                         // Option + Cmd + H
-                        DispatchQueue.main.async { GlobalHotkeyService.shared.onToggleHUDTriggered?() }
+                        Task { @MainActor in GlobalHotkeyService.shared.onToggleHUDTriggered?() }
                         return nil
                     }
                 }

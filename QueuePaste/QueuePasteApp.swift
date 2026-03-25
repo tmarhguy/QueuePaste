@@ -17,7 +17,7 @@ struct QueuePasteApp: App {
             // File menu
             CommandGroup(after: .newItem) {
                 Button("Import CSV…") {
-                    // Stub: trigger file importer
+                    NotificationCenter.default.post(name: NSNotification.Name("queuePasteImportCSVRequested"), object: nil)
                 }
                 .keyboardShortcut("o", modifiers: [.command])
             }

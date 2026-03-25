@@ -29,20 +29,16 @@ struct QueueSessionStore: Sendable {
         }
     }
 
-    func save(_ session: PersistedQueueSession) {
+    func save(_ session: PersistedQueueSession) throws {
         var toWrite = session
         toWrite.pointer = clampPointer(toWrite.pointer, itemCount: toWrite.items.count)
-        do {
-            let dir = fileURL.deletingLastPathComponent()
-            try fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = [.sortedKeys]
-            encoder.dateEncodingStrategy = .iso8601
-            let data = try encoder.encode(toWrite)
-            try data.write(to: fileURL, options: .atomic)
-        } catch {
-            // Best-effort persistence; avoid crashing the app.
-        }
+        let dir = fileURL.deletingLastPathComponent()
+        try fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        encoder.dateEncodingStrategy = .iso8601
+        let data = try encoder.encode(toWrite)
+        try data.write(to: fileURL, options: .atomic)
     }
 
     func delete() {

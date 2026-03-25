@@ -156,6 +156,11 @@ struct HUDWindowBridge: View {
                     controller.update(content: HUDContainerView().environment(vm))
                 }
             }
+            .onChange(of: vm.skippedItems.count) { _, _ in
+                if vm.isHUDVisible {
+                    controller.update(content: HUDContainerView().environment(vm))
+                }
+            }
             .onReceive(NotificationCenter.default.publisher(for: .queuePasteHUDDismissRequested)) { _ in
                 vm.isHUDVisible = false
                 controller.hide()

@@ -70,6 +70,9 @@ struct LoadQueueView: View {
         ) { result in
             handleFileImport(result)
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("queuePasteImportCSVRequested"))) { _ in
+            showFileImporter = true
+        }
         .padding(.top, 8)
         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
         .animation(.easeInOut(duration: 0.2), value: vm.errorMessage)
