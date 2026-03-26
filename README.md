@@ -8,6 +8,21 @@
 [![Swift](https://img.shields.io/badge/Swift-5.10+-F05138.svg?style=flat&logo=swift)](https://developer.apple.com/swift/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+## Why
+
+I work as an automation assistant on campus. I often need to paste a list of names one at a time—about **1000+ names a day**. While there are options to automate uploads with Selenium among others, **student data security** matters more, and the database is locked from external automation.
+
+**QueuePaste** lets me copy whole lists at once, then use **⌥ Space** to paste each item into the target database search tool, one at a time.
+
+It took a **2-hour** data entry task down to **20 minutes**—roughly a **6×** speedup.
+
+**copy → switch app → paste → repeat**  
+Every context switch costs focus and time. Multiply that by a thousand names.
+
+QueuePaste removes that loop: **load your list once**, then one hotkey advances through each item sequentially into **any** app.
+
+---
+
 **QueuePaste** is a native, lightweight, and highly performant utility for macOS designed to sequentially paste items from a loaded list across any target application with a single global hotkey. It is engineered with robust security, state preservation, and zero-context-switching in mind.
 
 QueuePaste was built to eliminate the repetitive strain and error-prone nature of copying and pasting hundreds of text payloads repeatedly into target applications (e.g., rigid databases, internal campus portals, and restricted CRM platforms) that do not support automated API integration.
@@ -109,6 +124,19 @@ Pre-built macOS disk image:
 - **[QueuePaste.dmg](https://github.com/tmarhguy/QueuePaste/releases/latest/download/QueuePaste.dmg)** (from [GitHub Releases](https://github.com/tmarhguy/QueuePaste/releases))
 
 Open the DMG, drag **QueuePaste** into **Applications**, and launch from there. On first run, macOS may show Gatekeeper prompts depending on notarization and your security settings.
+
+#### Install from the terminal
+
+1. **Homebrew**
+   ```bash
+   brew tap tmarhguy/queuepaste https://github.com/tmarhguy/QueuePaste
+   brew install --cask queuepaste
+   ```
+
+2. **curl**
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/tmarhguy/QueuePaste/main/install.sh | bash
+   ```
 
 ### Build a DMG locally
 
