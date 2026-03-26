@@ -1,7 +1,7 @@
 # QueuePaste
 
 <p align="center">
-  <img src="QueuePaste/Assets.xcassets/AppIcon.appiconset/AppIcon.png" alt="QueuePaste Logo" width="128">
+  <img src="QueuePaste/Assets.xcassets/AppIcon.appiconset/image.png" alt="QueuePaste Logo" width="128">
 </p>
 
 [![macOS](https://img.shields.io/badge/macOS-15.0+-black.svg?style=flat&logo=apple)](https://developer.apple.com/macos/)
@@ -102,7 +102,19 @@ QueuePaste is composed of lightweight utility panes.
 
 ## Deployment & Distribution
 
-QueuePaste is currently distributed as an ongoing utility designed initially to fulfill institutional obligations. Continuous architectural refinements are anticipated. Standalone `.dmg` packaging is generated via standard Xcode Organizer archiving protocols against Apple Developer ID certifications.
+### Download (current release)
+
+Pre-built macOS disk image:
+
+- **[QueuePaste.dmg](https://github.com/tmarhguy/QueuePaste/releases/latest/download/QueuePaste.dmg)** (from [GitHub Releases](https://github.com/tmarhguy/QueuePaste/releases))
+
+Open the DMG, drag **QueuePaste** into **Applications**, and launch from there. On first run, macOS may show Gatekeeper prompts depending on notarization and your security settings.
+
+### Build a DMG locally
+
+The repository includes [`build_dmg.sh`](build_dmg.sh), which archives the Xcode project and packages `QueuePaste.app` into a DMG using [create-dmg](https://github.com/create-dmg/create-dmg) (`brew install create-dmg`). You need a valid Apple Developer signing setup for archive/export steps to succeed on your machine.
+
+QueuePaste is also distributed as source for engineers who prefer to build in Xcode (see **Build Instructions** above).
 
 ---
 
@@ -119,6 +131,6 @@ See [LICENSE](LICENSE) for categorical declarations.
 
 <div align="center">
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/tmarhguy) [![Email](https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:tmarhguy@seas.upenn.edu) [![Portfolio](https://img.shields.io/badge/Portfolio-000000?style=for-the-badge&logo=githubpages&logoColor=white)](https://tmarhguy.com) [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/tmarhguy)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/tmarhguy) [![Email](https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:tmarhguy@gmail.com) [![Portfolio](https://img.shields.io/badge/Portfolio-000000?style=for-the-badge&logo=githubpages&logoColor=white)](https://tmarhguy.com) [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/tmarhguy)
 
 </div>

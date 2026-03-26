@@ -1,3 +1,6 @@
+# Distribution artifacts (upload via GitHub Releases, not git)
+release/
+
 # Xcode
 build/
 *.pbxuser
