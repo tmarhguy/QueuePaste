@@ -31,11 +31,17 @@ QueuePaste was built to eliminate the repetitive strain and error-prone nature o
 
 ## Key Features
 
-- **Global Execution:** Seamlessly register `⌥ Space` across macOS to securely advance paste buffers in any foreground application.
-- **HUD (Heads-Up Display):** A frictionless, non-intrusive floating `NSWindow` built securely above standard software layers. It persists target tracking without stealing key focus.
-- **Deep System Integration:** Leverages raw `CGEvent` synthesis coupled with `NSPasteboard` automation for guaranteed accuracy.
-- **State Continuity:** Built-in fault tolerance. Queue sequences and pointer indexes are atomically sequenced into `UserDefaults`, ensuring zero data loss during application restarts or crashes.
-- **Data Ingestion:** Instantaneous processing of raw multi-line Strings and comma-separated `.csv` structures.
+- **Global Execution:** Register `⌥ Space` across macOS to advance the paste queue in the foreground application when the queue is active.
+- **HUD (Heads-Up Display):** A floating window above other apps for current item and progress. Toggle with the menu or `⌥⌘H` when the queue is running.
+- **Clipboard HUD (universal widget):** Command-Shift-V opens a separate floating clipboard HUD (`ClipboardHUDCoordinator`) for quick access without leaving the focused app.
+- **Clipboard Workspace:** A dedicated area in the main window (sidebar: Workspace) plus Command-Shift-B for dump, inbox, buckets, staging, and queue-oriented workflows. Clipboard history is stored locally (SQLite metadata under Application Support, image bodies on disk) with passive capture and optional manual dump (`⌃⌥D`). Capture pause toggles with `⌃⌥C` when passive capture is enabled.
+- **Deep System Integration:** `CGEvent` taps and `NSPasteboard` automation for hotkeys and paste simulation (requires Accessibility permission).
+- **State Continuity:** Queue sessions persist via `UserDefaults` through `QueueSessionStore` for recovery across restarts.
+- **Data Ingestion:** Multi-line text and comma-separated `.csv` import for the paste queue.
+
+### Releases vs. this repository
+
+Published builds (DMG, Homebrew cask, installer script) track the **stable** line on `main`. Larger clipboard-workspace and inbox features may land on a **feature branch** first; check branch names and recent commits when building from source. Building from Xcode always reflects the branch you have checked out.
 
 ---
 
@@ -49,7 +55,7 @@ For an engineering deep route into the internal mechanisms of this engine, pleas
 
 - **[Models (Data Domain)](QueuePaste/Models/README.md):** The primitives governing state logic, Codable continuity payloads, and session structures.
 - **[ViewModels (State Presentation)](QueuePaste/ViewModels/README.md):** The Source of Truth acting as the principal conductor bridging user interactions to systemic low-level execution.
-- **[Views (SwiftUI Interfae)](QueuePaste/Views/README.md):** An overview of the Windowing infrastructure, declarative routing, and HUD deployment.
+- **[Views (SwiftUI Interface)](QueuePaste/Views/README.md):** Windowing infrastructure, main navigation, HUD and Clipboard Workspace panels.
 - **[Services (AppKit/CoreFoundation Int)](QueuePaste/Services/README.md):** Pure Swift wrappers bridging system accessibility rights, memory pasteboards, and `CGEvent` tap interceptors.
 
 ---

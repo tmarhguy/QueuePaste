@@ -31,6 +31,12 @@ The domain model is minimal and value-semantic where possible. This ensures that
    - **Conformance:** `Codable`
    - **Purpose:** Used by the `QueueSessionStore` to serialize the current `items`, `pointer`, and `state` to `UserDefaults`. This enables the robust crash-recovery and continuity features of the app.
 
+4. **Clipboard Workspace types (`InboxModels.swift`)**
+   - **`InboxItemKind`:** Distinguishes text vs. image rows stored in the local inbox.
+   - **`InboxRow`:** Identified inbox record with timestamps, optional text or image relative paths, size, pin state, and content hash for deduplication.
+   - **`BucketRow`:** Named grouping for inbox organization with optional expiry.
+   - **`StagingRow`:** Ordered lines prepared for transforms and export into the paste queue.
+
 ## Design Philosophy
 
 - **Value Types:** Structs and Enums are used exclusively to prevent unintended side effects from reference sharing.

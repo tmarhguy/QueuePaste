@@ -9,6 +9,9 @@ struct SidebarHotkeyFooter: View {
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
 
+            HotkeyRow(label: "Clipboard Workspace", key: "⌘⇧V")
+            HotkeyRow(label: "Manual dump", key: "⌃⌥D")
+            HotkeyRow(label: "Capture pause", key: "⌃⌥C")
             HotkeyRow(label: "Paste next", key: vm.pasteHotkeyLabel)
             HotkeyRow(label: "Pause / resume", key: vm.pauseHotkeyLabel)
             HotkeyRow(label: "HUD", key: vm.hudHotkeyLabel)

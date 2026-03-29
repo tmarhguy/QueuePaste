@@ -1,37 +1,25 @@
 # QueuePaste Architecture: ViewModels
 
-This directory houses the presentation logic that bridge our core models to the SwiftUI interface. It adheres strictly to the Model-View-ViewModel (MVVM) design pattern.
+This directory houses presentation logic that bridges core models to SwiftUI. The app follows MVVM with `@MainActor` and `@Observable` where appropriate for the main window and workspace.
 
-## Core Component: `QueueViewModel`
+## `QueueViewModel`
 
-`QueueViewModel` operates as the singular Source of Truth for the entire application. It runs on the `@MainActor` to guarantee thread-safe UI updates and utilizes the modern Swift `@Observable` macro to power the SwiftUI views reactively.
+Primary source of truth for the **paste queue**: items, pointer, `QueueState`, HUD visibility, CSV import, and coordination with `GlobalHotkeyService`, `PasteService`, and `QueueSessionStore`. Hotkey-driven paste advances use timed main-queue delays so the target app can read the pasteboard before the next item is prepared.
 
-### Responsibilities
+## `WorkspaceViewModel`
 
-1. **State Management**
-   - Maintains the complete list of `items` (`[QueueItem]`) and tracks the current `pointer` (index).
-   - Manages the active `QueueState`.
-   - Controls HUD visibility and Window expansion limits.
+Owns **Clipboard Workspace** UI state: tabs (Dump, Inbox, Buckets, Staging, Queue), search and filters, multi-select, staging transforms, toasts, and visibility. Registers with global hotkeys (`WorkspaceViewModel.registerForGlobalHotkeys`) and attaches to `QueueViewModel` for operations that move lines from staging into the queue. Settings such as passive capture are surfaced through `AppSettings`.
 
-2. **Hotkeys & System Integration**
-   - Interfaces heavily with `GlobalHotkeyService` to register key-down event taps (`⌥Space`, `⌥⌘P`, `⌥⌘H`).
-   - Translates system hotkey events into state mutations (e.g., advancing the queue pointer, pausing).
-   - Orchestrates clipboard preparation via `PasteService` milliseconds prior to simulating the keystroke.
+## Clipboard HUD stack
 
-3. **Persistence Orchestration**
-   - Listens to internal state mutations and periodically writes snapshots using `QueueSessionStore`.
-   - Responsible for restoring pending sessions upon application launch.
+- **`ClipboardHUDViewModel` / `ClipboardHUDView` / `ClipboardItemCard`:** Model and SwiftUI for the universal floating Clipboard HUD (Command-Shift-V), coordinated by `ClipboardHUDCoordinator` from the app entry point.
+- **`ClipboardHUDWindow`:** AppKit window hosting for the HUD layer.
 
-4. **Data Ingestion**
-   - Processes raw text payloads and CSV imports, converting them into valid `[QueueItem]` collections while removing malformed or empty data.
+## `DumpView`
 
-## Concurrency and Timing
+SwiftUI surface for the live dump / preview of captured content within the workspace.
 
-A critical aspect of `QueueViewModel` is its precise management of dispatch queues during paste operations:
-- When advancing the pointer (`performPasteAdvance`), the ViewModel relies on `DispatchQueue.main.asyncAfter` delays to ensure that the target application has sufficient time to read `NSPasteboard` contents before the ViewModel overwrites it with the next item.
-- **Why?** Rapid sequential `⌥Space` presses can occasionally outpace traditional macOS event loops in target applications (like web browsers).
+## Design notes
 
-## Design Philosophy 
-
-- **Single Responsibility:** The ViewModel handles *what* happens, while delegating the *how* to the `Services` layer.
-- **Reactive Safety:** All properties mutated here naturally trigger view redraws across both the Main Window and the HUD due to `@Observable` running on the Main Thread.
+- **Single responsibility:** ViewModels decide *what* changes; services perform system I/O.
+- **Main thread:** Queue and workspace mutations that affect SwiftUI run on the main actor.

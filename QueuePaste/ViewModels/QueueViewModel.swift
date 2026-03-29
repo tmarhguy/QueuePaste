@@ -175,7 +175,8 @@ class QueueViewModel {
         persistSessionIfNeeded()
         
         prepareClipboardForCurrentItem()
-        let success = GlobalHotkeyService.shared.start()
+        GlobalHotkeyService.shared.setQueueConsumesOptionSpace(true)
+        let success = GlobalHotkeyService.shared.ensureStarted()
         if !success && AccessibilityService.isTrusted() {
             showHotkeyConflict = true
         }
@@ -188,7 +189,7 @@ class QueueViewModel {
         statusMessage = "Paused at item \(pointer + 1)"
         persistSessionIfNeeded()
         
-        GlobalHotkeyService.shared.stop()
+        GlobalHotkeyService.shared.setQueueConsumesOptionSpace(false)
     }
 
     func resume() {
@@ -205,7 +206,8 @@ class QueueViewModel {
         persistSessionIfNeeded()
         
         prepareClipboardForCurrentItem()
-        _ = GlobalHotkeyService.shared.start()
+        GlobalHotkeyService.shared.setQueueConsumesOptionSpace(true)
+        _ = GlobalHotkeyService.shared.ensureStarted()
         setupHotkeyCallbacks()
     }
 
@@ -215,7 +217,7 @@ class QueueViewModel {
         statusMessage = "Queue stopped"
         persistSessionIfNeeded()
         
-        GlobalHotkeyService.shared.stop()
+        GlobalHotkeyService.shared.setQueueConsumesOptionSpace(false)
     }
 
     func resetToStart() {
@@ -228,7 +230,7 @@ class QueueViewModel {
         statusMessage = "Reset to beginning"
         persistSessionIfNeeded()
         
-        GlobalHotkeyService.shared.stop()
+        GlobalHotkeyService.shared.setQueueConsumesOptionSpace(false)
     }
 
     func clearQueue() {
@@ -243,7 +245,7 @@ class QueueViewModel {
         inputText = ""
         persistSessionIfNeeded()
         
-        GlobalHotkeyService.shared.stop()
+        GlobalHotkeyService.shared.setQueueConsumesOptionSpace(false)
     }
 
     // MARK: - Navigation
@@ -322,7 +324,32 @@ class QueueViewModel {
         statusMessage = "Queue complete — \(items.count) item\(items.count == 1 ? "" : "s") processed" +
             (skippedCount > 0 ? ", \(skippedCount) skipped" : "")
         persistSessionIfNeeded()
-        GlobalHotkeyService.shared.stop()
+        GlobalHotkeyService.shared.setQueueConsumesOptionSpace(false)
+    }
+
+    // MARK: - Queue from Workspace / Staging
+
+    /// Appends text lines to the execution queue (from Clipboard Workspace or Staging).
+    func appendLinesToQueue(_ lines: [String]) {
+        let trimmed = lines.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        guard !trimmed.isEmpty else { return }
+        let newItems = trimmed.map { QueueItem(text: $0) }
+
+        switch state {
+        case .idle:
+            items.append(contentsOf: newItems)
+            if !items.isEmpty { state = .ready }
+        case .ready, .active, .paused:
+            items.append(contentsOf: newItems)
+        case .complete:
+            items.append(contentsOf: newItems)
+            state = .ready
+            showCompletionBanner = false
+        }
+
+        errorMessage = ""
+        statusMessage = "Added \(newItems.count) item\(newItems.count == 1 ? "" : "s") to queue"
+        persistSessionIfNeeded()
     }
 
     // MARK: - HUD
@@ -367,7 +394,8 @@ class QueueViewModel {
         
         if state == .active {
             prepareClipboardForCurrentItem()
-            let success = GlobalHotkeyService.shared.start()
+            GlobalHotkeyService.shared.setQueueConsumesOptionSpace(true)
+            let success = GlobalHotkeyService.shared.ensureStarted()
             if !success && AccessibilityService.isTrusted() {
                 showHotkeyConflict = true
             }

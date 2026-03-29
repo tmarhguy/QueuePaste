@@ -4,11 +4,13 @@ import AppKit
 @main
 struct QueuePasteApp: App {
     @State private var vm = QueueViewModel()
+    @State private var workspaceVM = WorkspaceViewModel()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(vm)
+                .environment(workspaceVM)
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)
@@ -20,6 +22,19 @@ struct QueuePasteApp: App {
                     NotificationCenter.default.post(name: NSNotification.Name("queuePasteImportCSVRequested"), object: nil)
                 }
                 .keyboardShortcut("o", modifiers: [.command])
+                
+                Divider()
+
+                Button("Clipboard HUD") {
+                    ClipboardHUDCoordinator.shared.toggle()
+                }
+                .keyboardShortcut("v", modifiers: [.command, .shift])
+
+                Button("Clipboard Workspace") {
+                    NSApp.activate(ignoringOtherApps: true)
+                    workspaceVM.showWorkspace()
+                }
+                .keyboardShortcut("b", modifiers: [.command, .shift])
             }
 
             // Queue menu
@@ -67,6 +82,7 @@ struct QueuePasteApp: App {
         MenuBarExtra {
             MenuBarView()
                 .environment(vm)
+                .environment(workspaceVM)
         } label: {
             Image(systemName: "list.bullet.rectangle.portrait.fill")
                 .accessibilityLabel("QueuePaste")
@@ -79,8 +95,20 @@ struct QueuePasteApp: App {
 
 struct MenuBarView: View {
     @Environment(QueueViewModel.self) var vm
+    @Environment(WorkspaceViewModel.self) var workspace
 
     var body: some View {
+        if AppSettings.shared.passiveCaptureEnabled {
+            if AppSettings.shared.effectiveCapturePaused() {
+                Label("Capture paused", systemImage: "pause.circle")
+                    .foregroundStyle(.secondary)
+            } else {
+                Label("Passive capture on", systemImage: "record.circle")
+                    .foregroundStyle(Color.red)
+            }
+            Divider()
+        }
+
         if vm.items.isEmpty {
             Text("No queue loaded")
                 .foregroundStyle(.secondary)
@@ -105,6 +133,17 @@ struct MenuBarView: View {
         Divider()
 
         Button(vm.isHUDVisible ? "Hide HUD" : "Show HUD") { vm.toggleHUD() }
+
+        Divider()
+
+        Button("Clipboard HUD (⌘⇧V)") {
+            ClipboardHUDCoordinator.shared.toggle()
+        }
+
+        Button("Clipboard Workspace (⌘⇧B)") {
+            NSApp.activate(ignoringOtherApps: true)
+            workspace.showWorkspace()
+        }
 
         Divider()
 

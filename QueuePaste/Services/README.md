@@ -14,6 +14,7 @@ The Services layer encapsulates all interactions with macOS low-level APIs, spec
    - Traps system-wide keyboard events before they reach focused applications.
    - **Mechanism:** Listens for specific keycodes and modifier flags (e.g., `Option`, `Command`). If a match occurs, it executes a callback to the ViewModel and drops the event (`return nil`) so the OS doesn't process it.
    - Runs its own `CFRunLoopSource` on the main loop.
+   - **Shortcuts (current build):** queue paste `⌥Space` (when consuming), pause/resume `⌥⌘P`, HUD toggle `⌥⌘H`; Clipboard HUD `⌘⇧V`, Clipboard Workspace `⌘⇧B`, manual dump `⌃⌥D`, capture pause `⌃⌥C` (wired in `QueuePasteApp` / `WorkspaceViewModel`).
 
 3. **`PasteService`**
    - Orchestrates the actual `NSPasteboard` and simulated keystroke execution.
@@ -23,7 +24,19 @@ The Services layer encapsulates all interactions with macOS low-level APIs, spec
    - Maps between the `PersistedQueueSession` model and `UserDefaults.standard`.
    - Encodes data via `JSONEncoder` for fast, lightweight atomic persistence of the user's workflow state.
 
+5. **`InboxDatabase` / `InboxStore`**
+   - SQLite-backed metadata for inbox rows, buckets, and staging; large image payloads live on disk under paths resolved by `AppPaths`.
+
+6. **`AppPaths` / `AppSettings`**
+   - Application Support locations and user defaults for capture toggles, retention, and related workspace behavior.
+
+7. **`ClipboardCaptureCoordinator`**
+   - Observes pasteboard change counts on a timer for passive capture, respects pause and settings, and coordinates with `InboxStore`.
+
+8. **`QueuePasteNotifications`**
+   - Centralizes notification names used across UI and services where appropriate.
+
 ## Architectural Notes
 
-- **Statelessness:** Services in `QueuePaste` do not hold application data. They perform physical/system actions and return execution control back to the ViewModel.
+- **Statelessness:** Most services do not own long-lived app data; `InboxStore` is an intentional exception as the clipboard workspace persistence layer.
 - **Thread Safety:** While services execute system commands, their callbacks to the ViewModel are strictly routed back to the Main Thread via `DispatchQueue.main.async` to ensure SwiftUI compatibility.

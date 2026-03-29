@@ -4,6 +4,7 @@ import AppKit
 
 struct ContentView: View {
     @Environment(QueueViewModel.self) var vm
+    @Environment(WorkspaceViewModel.self) var workspaceVM
 
     @State private var selectedTab: SidebarTab = .load
     @State private var splitColumnVisibility: NavigationSplitViewVisibility = .all
@@ -34,6 +35,20 @@ struct ContentView: View {
                 }
         })
         .background(HUDWindowBridge())
+        .onChange(of: workspaceVM.isVisible) { _, visible in
+            if visible {
+                selectedTab = .workspace
+                // We reset isVisible so it can be triggered again later if the user switches away and presses cmd+shift+v
+                workspaceVM.isVisible = false 
+            }
+        }
+        .onAppear {
+            workspaceVM.attach(queue: vm)
+            WorkspaceViewModel.registerForGlobalHotkeys(workspaceVM)
+            WorkspaceViewModel.installGlobalHotkeyHandlers()
+            _ = GlobalHotkeyService.shared.ensureStarted()
+            ClipboardCaptureCoordinator.shared.startMonitoring()
+        }
         .sheet(isPresented: $vm.showResumePrompt) {
             ResumeSessionView()
         }
@@ -150,6 +165,8 @@ struct ContentView: View {
     @ViewBuilder
     private var detailBody: some View {
         switch selectedTab {
+        case .workspace:
+            WorkspaceRootView()
         case .load:
             LoadQueueView()
         case .queue:
@@ -195,12 +212,14 @@ struct ContentView: View {
 // MARK: - Sidebar tabs
 
 enum SidebarTab: String, CaseIterable, Hashable {
+    case workspace
     case load
     case queue
     case permissions
 
     var title: String {
         switch self {
+        case .workspace:   return "Clipboard Workspace"
         case .load:        return "Load Queue"
         case .queue:       return "Queue List"
         case .permissions: return "Permissions"
@@ -209,6 +228,7 @@ enum SidebarTab: String, CaseIterable, Hashable {
 
     var icon: String {
         switch self {
+        case .workspace:   return "tray.full"
         case .load:        return "square.and.pencil"
         case .queue:       return "list.number"
         case .permissions: return "lock.shield"
@@ -217,6 +237,7 @@ enum SidebarTab: String, CaseIterable, Hashable {
 
     var sidebarTitle: String {
         switch self {
+        case .workspace:   return "Workspace"
         case .load:        return "Prepare"
         case .queue:       return "Queue"
         case .permissions: return "Privacy"
@@ -225,6 +246,7 @@ enum SidebarTab: String, CaseIterable, Hashable {
 
     var detailNavigationTitle: String {
         switch self {
+        case .workspace:   return "Clipboard Workspace"
         case .load:        return "Prepare"
         case .queue:       return "Queue"
         case .permissions: return "Privacy"
@@ -238,4 +260,5 @@ enum SidebarTab: String, CaseIterable, Hashable {
     vm.loadExample()
     return ContentView()
         .environment(vm)
+        .environment(WorkspaceViewModel())
 }
